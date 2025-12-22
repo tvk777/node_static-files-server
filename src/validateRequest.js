@@ -5,16 +5,16 @@ const validateRequest = (filePath) => {
     message: null,
   };
 
-  if (filePath.includes('..')) {
+  if (filePath.includes('..') || !filePath.includes('file')) {
     result.code = 400;
     result.message = 'Bad request';
 
     return result;
   }
 
-  if (!(filePath === 'file' || filePath.startsWith('file/'))) {
+  if (!filePath.startsWith('file/')) {
     result.code = 200;
-    result.message = 'Request should start with "file"';
+    result.message = 'Request should start with "file/"';
 
     return result;
   }
