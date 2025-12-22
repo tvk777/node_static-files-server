@@ -28,5 +28,8 @@
   },
   "mateAcademy": {
     "projectType": "javascript"
+  },
+  "dependencies": {
+    "mime-types": "^3.0.2"
   }
 }

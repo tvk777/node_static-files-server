@@ -5,6 +5,7 @@
 const http = require('http');
 const fsp = require('fs/promises');
 const path = require('path');
+const mime = require('mime-types');
 const { validateRequest } = require('./validateRequest');
 
 function createServer() {
@@ -27,14 +28,15 @@ function createServer() {
         filePath.replace(/^file\/?/, '') || 'index.html',
       );
 
-      const file = await fsp.readFile(safePath, 'utf-8');
+      const file = await fsp.readFile(safePath);
+      const contentType = mime.lookup(safePath) || 'application/octet-stream';
 
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Type', contentType);
       res.end(file);
     } catch (error) {
       res.statusCode = 404;
-      res.end(`File ${filePath} is Not Found'`);
+      res.end(`File ${filePath} is Not Found`);
     }
   });
 
