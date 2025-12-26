@@ -1,10 +1,8 @@
 /* eslint-disable no-console */
-
 'use strict';
 
 const http = require('http');
 const fsp = require('fs/promises');
-const path = require('path');
 const mime = require('mime-types');
 const { validateRequest } = require('./validateRequest');
 
@@ -12,31 +10,26 @@ function createServer() {
   const server = http.createServer(async (req, res) => {
     res.setHeader('Content-Type', 'text/plain');
 
-    const filePath = req.url.slice(1);
-    const { code, message } = validateRequest(filePath);
+    const { code, message, finalPath } = validateRequest(req);
 
     if (code) {
       res.statusCode = code;
-      res.end(message);
 
-      return;
+      return res.end(message);
     }
 
     try {
-      const safePath = path.join(
-        'public',
-        filePath.replace(/^file\/?/, '') || 'index.html',
-      );
+      const file = await fsp.readFile(finalPath);
+      const contentType = mime.lookup(finalPath) || 'text/plain';
 
-      const file = await fsp.readFile(safePath);
-      const contentType = mime.lookup(safePath) || 'application/octet-stream';
-
+      console.log('contentType', contentType);
       res.statusCode = 200;
-      res.setHeader('Content-Type', contentType);
+      // res.setHeader('Content-Type', contentType);
       res.end(file);
     } catch (error) {
+      res.setHeader('Content-Type', 'text/plain');
       res.statusCode = 404;
-      res.end(`File ${filePath} is Not Found`);
+      res.end(`File not Found`);
     }
   });
 
